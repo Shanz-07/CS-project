@@ -6,10 +6,10 @@ import subprocess
 database_name = 'quiz'
 
 def get_db_connection():
-    return s.connect(host="localhost", user='root', passwd="Rehan@123", database=database_name,auth_plugin='mysql_native_password')
+    return s.connect(host="localhost", user='root', passwd="VSE@2022", database=database_name)
 
 def create_sql_db():
-    conn = s.connect(host="localhost", user='root', passwd="Rehan@123",auth_plugin='mysql_native_password')
+    conn = s.connect(host="localhost", user='root', passwd="VSE@2022")
     cursor = conn.cursor()
     cursor.execute(f"SHOW DATABASES LIKE '{database_name}'")
     result = cursor.fetchone()
