@@ -6,10 +6,10 @@ import subprocess
 database_name = 'quiz'
 
 def get_db_connection():
-    return s.connect(host="localhost", user='root', passwd="VSE@2022", database=database_name)
+    return s.connect(host="localhost", user='root', passwd="2721", database=database_name)
 
 def create_sql_db():
-    conn = s.connect(host="localhost", user='root', passwd="VSE@2022")
+    conn = s.connect(host="localhost", user='root', passwd="2721")
     cursor = conn.cursor()
     cursor.execute(f"SHOW DATABASES LIKE '{database_name}'")
     result = cursor.fetchone()
@@ -167,7 +167,7 @@ class QuizGUI:
         self.clear_screen()
         conn = get_db_connection()
         cursor = conn.cursor()
-        cursor.execute('SHOW TABLES')
+        cursor.execute("SHOW TABLES WHERE `Tables_in_quiz` NOT LIKE '%_scores'")
         tables = cursor.fetchall()
         a = 0
         for table in tables:
