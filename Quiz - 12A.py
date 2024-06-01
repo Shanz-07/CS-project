@@ -41,8 +41,8 @@ class Quiz:
 
             
     def __init__(self):
-        self.admin_u = "1"
-        self.admin_p = "2"
+        self.admin_u = "admin07"
+        self.admin_p = "admin@123"
         self.user_u = '3'
         self.user_p = None
         self.categories = []
