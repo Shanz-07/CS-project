@@ -94,4 +94,47 @@ def registration():
         print("Category not found.")
 
 registration()
+'''
+import tkinter as tk
+#HEADING
+                                                                                                                                                                
+x=tk.Tk()
+x.geometry("400x400")
+
+def clear_screen():
+    for widget in x.winfo_children():
+        widget.destroy()
+
+def auth():
+    user = "messi"
+    pas = "123"
+    h=e.get()
+    w=f.get()
+    if user == h and pas == w:
+        auth_success()
+       
+       
+def auth_success():
+   clear_screen()
+   succ_label=tk.Label(x,text="AUTHENTICATION SUCCESFULL").pack()
+
+def login():
+    global e,f
+    clear_screen()
+    label1 = tk.Label(x, text="USERNAME")
+    label1.pack()
+    e = tk.Entry(x)
+    e.pack()
+    label2 = tk.Label(x, text="PASSWORD")
+    label2.pack()
+    f = tk.Entry(x,show="*")
+    f.pack()
+    box3=tk.Button(x,text="ok",command=auth)
+    box3.pack()
+label=tk.Label(x,text="LOGIN PAGE")
+label.pack()
+button=tk.Button(x,text="CLICK ME!!",command=login)
+button.pack()
+x.mainloop()
+'''
 
