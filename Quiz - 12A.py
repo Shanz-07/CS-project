@@ -11,13 +11,17 @@ Button_color_bg_selected = '#F4EBFB'
 Entry_color_fg = '#F4EBFB'
 Entry_color_bg = '#7465b1'
 Background = '#978bc4'
+table_color_text='#000000'
+table_color_bg = '#7465b1'
+table_color_inner_bg ='000000'
 database_name = 'quiz'
+mainnames=[]
 
 def get_db_connection():
     return s.connect(host="localhost", user='root', passwd="VSE@2022", database=database_name)
 
 def create_sql_db():
-    conn = s.connect(host="localhost", user='root', passwd="VSE@2022")
+    conn = get_db_connection()
     cursor = conn.cursor()
     cursor.execute(f"SHOW DATABASES LIKE '{database_name}'")
     result = cursor.fetchone()
@@ -43,8 +47,8 @@ def reset_database():
 class Quiz:
 
     def __init__(self):
-        self.admin_u = "admin07"
-        self.admin_p = "admin@123"
+        self.admin_u = "1"
+        self.admin_p = "2"
         self.categories = []
     
     def category(self):
@@ -123,17 +127,18 @@ class QuizGUI:
         self.questions = []
         self.root.title("Quiz Admin")
         self.root.geometry("1000x1000")
-        self.create_login_mode_screen()
         self.score = 0
         self.username=''
-
+        self.mainnames=[]
+        self.create_login_mode_screen()
+ 
     def create_login_mode_screen(self):
         self.clear_screen()
         tk.Label(self.root, text="WELCOME TO THE QUIZ COMPETITION !", font=("courier new", 30, "bold"), bg=Label_color_bg, fg=Label_color_fg).pack(pady=20)
         tk.Label(self.root, text="Do you want to login as admin/player:", font=("courier new", 32,'bold'), bg=Label_color_bg, fg=Label_color_fg).pack(pady=20)
         tk.Button(self.root, text="Admin", command=self.create_login_screen_admin, bg=Button_color_bg, fg=Button_color_fg, font=("courier new", 16,'bold'),highlightbackground= Button_color_bg_selected, highlightcolor=Button_color_fg_selected).pack(pady=5)
         tk.Button(self.root, text="Player", command=self.create_login_screen_user, bg=Button_color_bg, fg=Button_color_fg, font=("courier new", 16,'bold'),highlightbackground= Button_color_bg_selected, highlightcolor=Button_color_fg_selected).pack(pady=10)
-
+        
     def create_login_screen_admin(self):
         self.clear_screen()
         tk.Label(self.root, text="Login", font=("courier new", 32), bg=Label_color_bg, fg=Label_color_fg).pack(pady=20)
@@ -146,6 +151,19 @@ class QuizGUI:
         tk.Button(self.root, text="Login", command=self.login, bg=Button_color_bg, fg=Button_color_fg, font=("courier new", 16),highlightbackground= Button_color_bg_selected, highlightcolor=Button_color_fg_selected).pack(pady=20)
 
     def create_login_screen_user(self):
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute(f"SHOW tables LIKE 'general_1'")
+        r = cursor.fetchone()
+        print(r)
+        if not r:
+            cursor.execute('CREATE TABLE General_1 (q VARCHAR(255), a VARCHAR(255))')
+            cursor.execute("INSERT INTO General_1 (q, a) VALUES ('Which animal is known as the ''Ship of the Desert''?', 'Camel'), ('How many days are there in a week?', '7 days'), ('How many hours are there in a day?', '24 hours'), ('How many letters are there in the English alphabet?', '26 letters'), ('Rainbow consist of how many colours?', '7 colours');")
+            create_score_table_query = f"CREATE TABLE IF NOT EXISTS general_1_scores (username VARCHAR(100), score INT)"
+            cursor.execute(create_score_table_query)
+            conn.commit()
+            cursor.close()
+            conn.close()
         self.clear_screen()
         tk.Label(self.root, text="Login", font=("courier new", 32), bg=Label_color_bg, fg=Label_color_fg).pack(pady=20)
         tk.Label(self.root, text="Username", bg=Label_color_bg, font=("courier new", 16), fg=Label_color_fg).pack(pady=10)
@@ -159,7 +177,21 @@ class QuizGUI:
 
     def user_login(self):
         self.username = self.user_entry.get()
-        if self.username:
+        con=get_db_connection()
+        cursor=con.cursor()
+        cursor.execute("SHOW TABLES LIKE '%scores'")
+        tablesname=cursor.fetchall()
+        for i in tablesname:
+            table=i[0]
+            query = f"SELECT * FROM `{table}`"
+            cursor.execute(query)
+            scoresname=cursor.fetchall()
+            for j in scoresname:
+                self.mainnames.append(j[0])
+            print(self.mainnames)
+        if self.username in self.mainnames:
+            messagebox.showerror("ERROR", "Username already taken, try again!")
+        else:
             messagebox.showinfo("Login Success", f"Welcome {self.username}!")
             self.create_main_screen_u()
     
@@ -170,11 +202,12 @@ class QuizGUI:
 
     def create_main_screen_u(self):
         self.clear_screen()
-        tk.Label(self.root, text="WELCOME TO THE QUIZ COMPETITION !", font=("courier new", 20, "bold"), bg=Label_color_bg, fg=Label_color_fg).pack(pady=50)
-        tk.Button(self.root, text='START QUIZ', font=("courier new", 20, "bold"), command=self.start_quiz, bg=Button_color_bg, fg=Button_color_fg,highlightbackground= Button_color_bg_selected, highlightcolor=Button_color_fg_selected).place(relx=0.5, rely=0.5, anchor='center')
-        tk.Button(self.root, text="RULES", command=self.create_rules_screen, bg=Button_color_bg, fg=Button_color_fg, font=("courier new", 20),highlightbackground= Button_color_bg_selected, highlightcolor=Button_color_fg_selected).place(relx=0.5,rely=0.7,anchor='center')
-        tk.Button(self.root, text="QUIT", command=self.create_login_mode_screen, bg=Button_color_bg, fg=Button_color_fg, font=("courier new", 20),highlightbackground= Button_color_bg_selected, highlightcolor=Button_color_fg_selected).place(relx=0.5,rely=0.9,anchor='center')
+        tk.Label(self.root, text="WELCOME TO THE QUIZ COMPETITION !", font=("courier new", 40, "bold"), bg=Label_color_bg, fg=Label_color_fg).pack(pady=50)
+        tk.Button(self.root, text='START QUIZ', font=("courier new", 20, "bold"), command=self.start_quiz, bg=Button_color_bg, fg=Button_color_fg,highlightbackground= Button_color_bg_selected, highlightcolor=Button_color_fg_selected).place(relx=0.5, rely=0.35, anchor='center')
+        tk.Button(self.root, text="  RULES  ", command=self.create_rules_screen, bg=Button_color_bg, fg=Button_color_fg, font=("courier new", 20,"bold"),highlightbackground= Button_color_bg_selected, highlightcolor=Button_color_fg_selected).place(relx=0.5,rely=0.45,anchor='center')
+        tk.Button(self.root, text="   QUIT   ", command=self.create_login_mode_screen, bg=Button_color_bg, fg=Button_color_fg, font=("courier new", 20,"bold"),highlightbackground= Button_color_bg_selected, highlightcolor=Button_color_fg_selected).place(relx=0.5,rely=0.55,anchor='center')
 
+    
     def start_quiz(self):
         self.clear_screen()
         conn = get_db_connection()
@@ -193,6 +226,7 @@ class QuizGUI:
     def cat_display(self, category):
         self.current_category = category
         self.current_question_index = 0
+        self.score=0
         conn = get_db_connection()
         cursor = conn.cursor()
         cursor.execute(f'SELECT * FROM {category}')
@@ -210,7 +244,7 @@ class QuizGUI:
             tk.Label(self.root, text=q_text, font=("courier new", 20, "bold"), bg=Label_color_bg, fg=Label_color_fg).pack(pady=20)
             self.answer_entry = tk.Entry(self.root,fg=Entry_color_fg,bg=Entry_color_bg, font=("courier new", 20))
             self.answer_entry.pack(pady=10)
-            tk.Button(self.root, text="Submit", command=self.check_answer,bg=Button_color_bg, fg=Button_color_fg,highlightbackground= Button_color_bg_selected, highlightcolor=Button_color_fg_selected).pack(pady=10)
+            tk.Button(self.root, text="Submit", command=self.check_answer,bg=Button_color_bg,font=("courier new",20),fg=Button_color_fg,highlightbackground= Button_color_bg_selected, highlightcolor=Button_color_fg_selected).pack(pady=0)
         else:
             self.clear_screen()
             tk.Label(self.root, text=f"Quiz Completed!, Your Total score was {self.score}", font=("courier new", 20, "bold"), bg=Label_color_bg, fg=Label_color_fg).pack(pady=20)
@@ -272,21 +306,23 @@ class QuizGUI:
         style = ttk.Style()
         style.theme_use('clam')
         style.configure("Treeview", 
-                        background="#D3D3D3",  
-                        foreground="black",    
+                        background=table_color_inner_bg,  
+                        foreground=table_color_text,    
                         rowheight=25,  
-                        fieldbackground="#D3D3D3") 
+                        fieldbackground=table_color_bg,
+                        font=("courier new", 16))
+        style.configure("Treeview.Heading", background="#fbf5fd", foreground="black",font=("courier new", 16))
         style.map("Treeview", 
-                background=[('selected', '#347083')], 
+                background=[('selected', '#978bc4')], 
                 foreground=[('selected', 'white')])  
         columns = ("Position", "Username", "Score")
         tree = ttk.Treeview(self.root, columns=columns, show='headings')
         tree.heading("Position", text="Position")
         tree.heading("Username", text="Username")
         tree.heading("Score", text="Score")
-        tree.column("Position", width=80, anchor=tk.CENTER)
-        tree.column("Username", width=150, anchor=tk.CENTER)
-        tree.column("Score", width=80, anchor=tk.CENTER)
+        tree.column("Position", width=130, anchor=tk.CENTER)
+        tree.column("Username", width=130, anchor=tk.CENTER)
+        tree.column("Score", width=130, anchor=tk.CENTER)
         for i, (username, score) in enumerate(leaderboard, start=1):
             tree.insert('', tk.END, values=(i, username, score))
         tree.pack(pady=10)
